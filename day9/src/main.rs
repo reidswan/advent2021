@@ -2,75 +2,134 @@ use itertools::Itertools;
 use std::collections::{HashMap, HashSet};
 
 fn main() {
-    let input = parse_input(input()).unwrap();
-    println!("Part 1: {}", part1(&input));
-    println!("Part 2: {}", part2(&input).unwrap());
+    let mut input = parse_input(input()).unwrap();
+    println!("Part 1: {}", part1(&mut input));
+    println!("Part 2: {}", part2(&mut input));
 }
 
-fn part1(input: &Vec<Vec<u32>>) -> u32 {
+fn part1(input: &mut BasinMap) -> u32 {
     input
+        .compute_low_points()
         .iter()
-        .enumerate()
-        .map::<u32, _>(|(i, row)| {
-            row.iter()
-                .enumerate()
-                .filter(|&(j, _)| is_low_point(input, i, j))
-                .map(|(_, h)| h + 1)
-                .sum()
-        })
+        .map(|&loc| input.get_val(loc) + 1)
         .sum()
 }
 
-fn part2(input: &Vec<Vec<u32>>) -> Result<usize, String> {
-    let mut basins: HashMap<(usize, usize), usize> = HashMap::new();
+fn part2(input: &mut BasinMap) -> usize {
+    // let mut basins = HashMap::new();
+    let mut basin_counts = HashMap::new();
 
-    for (i, row) in input.iter().enumerate() {
-        for (j, &pt) in row.iter().enumerate() {
-            if pt == 9 {
+    let rows = input.points.len();
+    let cols = input.points[0].len();
+
+    for i in 0..rows {
+        for j in 0..cols {
+            if input.get_val((i, j)) == 9 {
                 continue;
             }
-
-            let basin =
-                determine_basin(input, i, j).ok_or(format!("No basin for point ({}, {})", i, j))?;
-
-            *basins.entry(basin).or_insert(0) += 1;
+            let basin = input.get_basin((i, j));
+            *basin_counts.entry(basin).or_insert(0) += 1;
         }
     }
 
-    Ok(basins.values().sorted().rev().take(3).product())
+    basin_counts.values().sorted().rev().take(3).product()
 }
 
-fn determine_basin(matrix: &Vec<Vec<u32>>, i: usize, j: usize) -> Option<(usize, usize)> {
-    if matrix[i][j] == 9 {
-        return None;
+type Coord = (usize, usize);
+
+struct BasinMap {
+    points: Vec<Vec<u32>>,
+    low_points: HashMap<Coord, bool>,
+    basins: HashMap<Coord, Coord>,
+}
+
+impl BasinMap {
+    fn new(points: Vec<Vec<u32>>) -> Self {
+        Self {
+            points,
+            low_points: HashMap::new(),
+            basins: HashMap::new(),
+        }
     }
 
-    let mut lowest_point_coords = (i, j);
-    let mut lowest_point = matrix[i][j];
-    let mut visited: HashSet<(usize, usize)> = HashSet::new();
-    visited.insert(lowest_point_coords);
-
-    while !is_low_point(matrix, lowest_point_coords.0, lowest_point_coords.1) {
-        let prev_pt = lowest_point_coords;
-        for (i2, j2) in get_adjacent_points(matrix, lowest_point_coords.0, lowest_point_coords.1) {
-            let pt = matrix[i2][j2];
-            if pt == 9 {
-                continue;
-            } else if visited.contains(&(i2, j2)) {
-                continue;
-            } else if pt < lowest_point {
-                lowest_point = pt;
-                lowest_point_coords = (i2, j2);
-                visited.insert(lowest_point_coords);
+    fn compute_low_points(&mut self) -> HashSet<(usize, usize)> {
+        let rows = self.points.len();
+        let cols = self.points[0].len();
+        for i in 0..rows {
+            for j in 0..cols {
+                self.is_low_point((i, j));
             }
         }
 
-        if prev_pt == lowest_point_coords {
-            return None;
-        }
+        self.low_points
+            .iter()
+            .filter(|(_, is_low)| **is_low)
+            .map(|c| c.0.clone())
+            .collect()
     }
 
-    Some(lowest_point_coords)
+    fn is_low_point(&mut self, location: Coord) -> bool {
+        if self.low_points.contains_key(&location) {
+            return self.low_points[&location];
+        }
+
+        let (x, y) = location;
+        let is_low_point = get_adjacent_points(&self.points, x, y)
+            .into_iter()
+            .all(|(x2, y2)| self.points[x][y] < self.points[x2][y2]);
+
+        self.low_points.insert(location, is_low_point);
+
+        is_low_point
+    }
+
+    fn get_val(&self, (x, y): Coord) -> u32 {
+        self.points[x][y]
+    }
+
+    fn get_basin(&mut self, location: Coord) -> Option<Coord> {
+        if self.basins.contains_key(&location) {
+            return Some(self.basins[&location]);
+        }
+
+        let mut visited = HashSet::new();
+        self.compute_basin_rec(location, &mut visited)
+    }
+
+    fn compute_basin_rec(
+        &mut self,
+        location: Coord,
+        visited: &mut HashSet<Coord>,
+    ) -> Option<Coord> {
+        if self.basins.contains_key(&location) {
+            return Some(self.basins[&location]);
+        }
+
+        if self.get_val(location) == 9 {
+            return None;
+        }
+
+        if self.is_low_point(location) {
+            self.basins.insert(location, location);
+            return Some(location);
+        }
+
+        visited.insert(location);
+
+        let (x, y) = location;
+        for adj_loc in get_adjacent_points(&self.points, x, y) {
+            if self.get_val(adj_loc) == 9 {
+                continue;
+            } else if visited.contains(&adj_loc) {
+                continue;
+            } else if let Some(basin) = self.compute_basin_rec(adj_loc, visited) {
+                self.basins.insert(location, basin);
+                return Some(basin);
+            }
+        }
+
+        return None;
+    }
 }
 
 fn get_adjacent_points(matrix: &Vec<Vec<u32>>, i: usize, j: usize) -> Vec<(usize, usize)> {
@@ -90,18 +149,14 @@ fn get_adjacent_points(matrix: &Vec<Vec<u32>>, i: usize, j: usize) -> Vec<(usize
     adjacent_pts
 }
 
-fn is_low_point(matrix: &Vec<Vec<u32>>, i: usize, j: usize) -> bool {
-    get_adjacent_points(matrix, i, j)
-        .into_iter()
-        .all(|(i2, j2)| matrix[i][j] < matrix[i2][j2])
-}
-
-fn parse_input(input: &str) -> Option<Vec<Vec<u32>>> {
-    input
+fn parse_input(input: &str) -> Option<BasinMap> {
+    let pts = input
         .trim()
         .lines()
         .map(|l| l.trim().chars().map(|c| c.to_digit(10)).collect())
-        .collect()
+        .collect::<Option<_>>()?;
+
+    Some(BasinMap::new(pts))
 }
 
 fn input() -> &'static str {
