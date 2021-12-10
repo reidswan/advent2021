@@ -8,3 +8,6 @@ parseInteger = read <$> many1 digit
 
 spaces :: Parsec String () String
 spaces = many1 space
+
+head' [] = Nothing
+head' (a : _) = Just a
