@@ -31,7 +31,7 @@ scorep2 c = error $ "not a valid bracket: '" ++ c : "'"
 
 completionScore line = do
   completions <- close line []
-  return $ foldr (\c tot -> 5 * tot + scorep2 c) 0 completions
+  return $ foldl (\tot c -> 5 * tot + scorep2 c) 0 completions
 
 part1 = sum . map corruptionScore
 
@@ -51,7 +51,7 @@ part2 lines =
 
 -- get the closing bracket for each open bracket in the given stack
 completions :: [Char] -> [Char]
-completions = foldl (\l c -> closer c : l) []
+completions = map closer
 
 close :: [Char] -> [Char] -> Maybe [Char]
 close [] stack = Just $ completions stack
