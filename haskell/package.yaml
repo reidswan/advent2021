@@ -24,6 +24,8 @@ dependencies:
 - containers
 - timeit
 - parsec
+- array
+- hashtables
 
 library:
   source-dirs: src

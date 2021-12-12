@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7577790e60efc6e02ad98ee76cfc488d397e9fdff6e9ad633beaf6cfa740c50f
+-- hash: b9da4d862205112bd7a1e90739729e86fe4478eb0f0140e74ab0b315a4607c11
 
 name:           advent2021-hs
 version:        0.1.0.0
@@ -29,6 +29,7 @@ library
   exposed-modules:
       Day1
       Day10
+      Day11
       Day2
       Days
       Util
@@ -37,8 +38,10 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      array
+    , base >=4.7 && <5
     , containers
+    , hashtables
     , parsec
     , timeit
   default-language: Haskell2010
@@ -52,8 +55,10 @@ executable advent2021-hs-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2
   build-depends:
       advent2021-hs
+    , array
     , base >=4.7 && <5
     , containers
+    , hashtables
     , parsec
     , timeit
   default-language: Haskell2010
