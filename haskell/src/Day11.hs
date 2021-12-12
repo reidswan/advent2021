@@ -59,10 +59,12 @@ incrementAdjacent h (head:rest) = do
     incrementAdjacent h (rest ++ catMaybes flashing)
 
 countAndResetFlashes :: HashGrid s -> ST s Int
-countAndResetFlashes h = do
-    resets <- H.foldM (\l (k, v) -> return $ if v > 9 then k:l else l) [] h
-    forM_ resets $ \k -> H.insert h k 0
-    return $ length resets
+countAndResetFlashes h = H.foldM (\n (k, v) -> 
+    if v > 9 
+        then do
+            H.insert h k 0 
+            return $ n + 1
+        else return n) 0 h
 
 step :: HashGrid s -> ST s Int
 step h = do
