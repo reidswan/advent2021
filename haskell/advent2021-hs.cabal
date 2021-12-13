@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b9da4d862205112bd7a1e90739729e86fe4478eb0f0140e74ab0b315a4607c11
+-- hash: 1c05b81daec126efa4868d7b793cb6e5c1565135992e551303f8eba511f0a726
 
 name:           advent2021-hs
 version:        0.1.0.0
@@ -31,6 +31,7 @@ library
       Day10
       Day11
       Day2
+      Day3
       Days
       Util
   other-modules:
