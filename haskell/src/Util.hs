@@ -3,9 +3,10 @@ module Util where
 import Data.Char (intToDigit)
 import Data.Foldable (find)
 import Data.List (elemIndex, findIndex)
+import qualified Data.Map as Map
 import Data.Maybe (fromJust)
-import Text.Parsec hiding (spaces)
-import Text.Parsec.Char hiding (spaces)
+import Text.Parsec (Parsec, digit, many1, space)
+import Text.Parsec.Char (digit, space)
 
 parseInteger :: Parsec String () Integer
 parseInteger = read <$> many1 digit
@@ -43,3 +44,6 @@ showBinary n = go n ""
     go 0 "" = "0"
     go 0 s = s
     go n s = go (n `div` 2) (intToDigit (n `mod` 2) : s)
+
+countItems :: (Ord a) => [a] -> Map.Map a Integer
+countItems = Map.fromListWith (+) . flip zip (repeat 1)
