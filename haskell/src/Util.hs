@@ -1,6 +1,7 @@
 module Util where
 
-import Data.Char (intToDigit)
+import qualified Data.Array as Array
+import Data.Char (digitToInt, intToDigit)
 import Data.Foldable (find)
 import Data.List (elemIndex, findIndex)
 import qualified Data.Map as Map
@@ -47,3 +48,21 @@ showBinary n = go n ""
 
 countItems :: (Ord a) => [a] -> Map.Map a Integer
 countItems = Map.fromListWith (+) . flip zip (repeat 1)
+
+readGrid :: String -> Array.Array (Int, Int) Int
+readGrid s =
+  let ls = lines s
+      height = length ls
+      width = length $ head ls
+   in Array.listArray ((0, 0), (height - 1, width - 1)) (map digitToInt $ concat ls)
+
+adjacent :: (Ord a, Num a) => Array.Array (a, a) e -> (a, a) -> [(a, a)]
+adjacent grid (x, y) =
+  let ((xLow, yLow), (xHi, yHi)) = Array.bounds grid
+   in filter
+        (\(x', y') -> x' `inBounds` (xLow, xHi) && y' `inBounds` (yLow, yHi))
+        [ (x - 1, y),
+          (x + 1, y),
+          (x, y - 1),
+          (x, y + 1)
+        ]
