@@ -28,6 +28,15 @@ fromDecDigit c = elemIndex c decDigits
 unsafeFromDecDigit :: Char -> Int
 unsafeFromDecDigit = fromJust . fromDecDigit
 
+hexDigits :: [Char]
+hexDigits = "0123456789ABCDEF"
+
+fromHexDigit :: Char -> Maybe Int
+fromHexDigit c = elemIndex c hexDigits
+
+unsafeFromHexDigit :: Char -> Int
+unsafeFromHexDigit = fromJust . fromHexDigit
+
 inBounds :: Ord a => a -> (a, a) -> Bool
 inBounds x (xMin, xMax) = xMin <= x && x <= xMax
 
@@ -45,6 +54,11 @@ showBinary n = go n ""
     go 0 "" = "0"
     go 0 s = s
     go n s = go (n `div` 2) (intToDigit (n `mod` 2) : s)
+
+padLToLength :: Int -> Char -> [Char] -> [Char]
+padLToLength n pad str
+  | length str < n = padLToLength n pad (pad : str)
+  | otherwise = str
 
 countItems :: (Ord a) => [a] -> Map.Map a Integer
 countItems = Map.fromListWith (+) . flip zip (repeat 1)
