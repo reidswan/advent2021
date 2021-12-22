@@ -6,11 +6,17 @@ import Data.Foldable (find)
 import Data.List (elemIndex, findIndex)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
-import Text.Parsec (Parsec, digit, many1, space)
-import Text.Parsec.Char (digit, space)
+import Text.Parsec (Parsec, digit, many1, option, space)
+import Text.Parsec.Char (char, digit, space)
 
 parseInteger :: Parsec String () Integer
 parseInteger = read <$> many1 digit
+
+parseSignedInteger :: Parsec String () Integer
+parseSignedInteger = do
+  neg <- option False (char '-' >> return True)
+  int <- parseInteger
+  return $ if neg then negate int else int
 
 spaces :: Parsec String () String
 spaces = many1 space
