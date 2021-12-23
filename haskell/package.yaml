@@ -41,3 +41,6 @@ executables:
     - -O2
     dependencies:
     - advent2021-hs
+
+default-extensions: 
+  - NamedFieldPuns

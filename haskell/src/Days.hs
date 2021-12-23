@@ -7,6 +7,7 @@ import Day14 (runDay14)
 import Day15 (runDay15)
 import Day16 (runDay16)
 import Day17 (runDay17)
+import Day18 (runDay18)
 import Day2 (runDay2)
 import Day3 (runDay3)
 import System.TimeIt (timeIt)
@@ -24,6 +25,7 @@ runDay_ "14" = runDay14
 runDay_ "15" = runDay15
 runDay_ "16" = runDay16
 runDay_ "17" = runDay17
+runDay_ "18" = runDay18
 runDay_ n = \_ -> putStrLn $ "Day " ++ n ++ " not available"
 
 inputFile s = "input/" ++ pad s ++ ".txt"

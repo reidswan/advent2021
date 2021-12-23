@@ -19,7 +19,7 @@ data Target = Target
 
 {-
   y values:
-  v[n] = v[0] - (n - 1)
+  v[n] = v[0] - n
   y[n]  = y[n-1] + v[n-1]
         = y[n-1] + v[0] - (n-1)
         = (y[n-2] + v[n-2]) + v[0] - (n-1)
@@ -54,7 +54,7 @@ determineApex :: Integer -> Integer
 determineApex v0 = let v = v0 + 1 in div (v ^ 2 - v) 2
 
 validVelocity :: Target -> (Integer, Integer) -> Bool
-validVelocity Target {xMin, xMax, yMin, yMax} v0 = go (0, 0) v0
+validVelocity Target {xMin, xMax, yMin, yMax} = go (0, 0)
   where
     go (x, y) (vx, vy)
       | x `inBounds` (xMin, xMax) && y `inBounds` (yMin, yMax) = True

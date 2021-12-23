@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 18791bea7e4fb012aa11e280cd1cf79d50bbffd2dcd6829f236eb90cfa74d52e
+-- hash: c930f16e1fe411c8d9d0fc306832cef4468193d3eac16521ab0214e3e41241af
 
 name:           advent2021-hs
 version:        0.1.0.0
@@ -34,6 +34,7 @@ library
       Day15
       Day16
       Day17
+      Day18
       Day2
       Day3
       Days
@@ -42,6 +43,7 @@ library
       Paths_advent2021_hs
   hs-source-dirs:
       src
+  default-extensions: NamedFieldPuns
   build-depends:
       array
     , base >=4.7 && <5
@@ -57,6 +59,7 @@ executable advent2021-hs-exe
       Paths_advent2021_hs
   hs-source-dirs:
       app
+  default-extensions: NamedFieldPuns
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2
   build-depends:
       advent2021-hs
