@@ -3,7 +3,7 @@ module Util where
 import qualified Data.Array as Array
 import Data.Char (digitToInt, intToDigit)
 import Data.Foldable (find)
-import Data.List (elemIndex, findIndex)
+import Data.List (elemIndex, findIndex, sortBy)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Text.Parsec (Parsec, digit, many1, option, space)
@@ -47,12 +47,14 @@ inBounds :: Ord a => a -> (a, a) -> Bool
 inBounds x (xMin, xMax) = xMin <= x && x <= xMax
 
 readBinary :: Num a => String -> a
-readBinary s = go s 0
+readBinary = readBinary' . map (== '1')
+
+readBinary' :: Num a => [Bool] -> a
+readBinary' s = go s 0
   where
     go [] n = n
-    go ('0' : rest) n = go rest (2 * n)
-    go ('1' : rest) n = go rest (2 * n + 1)
-    go _ _ = undefined
+    go (False : rest) n = go rest (2 * n)
+    go (True : rest) n = go rest (2 * n + 1)
 
 showBinary :: Int -> [Char]
 showBinary n = go n ""
@@ -86,3 +88,9 @@ adjacent grid (x, y) =
           (x, y - 1),
           (x, y + 1)
         ]
+
+enumerate :: Integral b => [a] -> [(b, a)]
+enumerate = zip [0 ..]
+
+valsSortedByKey :: Ord a => Map.Map a b -> [b]
+valsSortedByKey m = map snd $ sortBy (\a b -> compare (fst a) (fst b)) $ Map.assocs m
