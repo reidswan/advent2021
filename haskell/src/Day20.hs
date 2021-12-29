@@ -68,8 +68,9 @@ bitAt :: Image -> Coord -> Bool
 bitAt i c = fromMaybe (emptyBit i) $ Map.lookup c $ img i
 
 relevantArea :: Image -> (Coord, Coord)
-relevantArea Image {img} =
-  let keys = Map.keys img
+relevantArea i@Image {img} =
+  let empty = emptyBit i
+      keys = Map.keys $ Map.filter (/= empty) img
       xs = map fst keys
       ys = map snd keys
    in ((minimum xs - 2, minimum ys - 2), (maximum xs + 2, maximum ys + 2))
