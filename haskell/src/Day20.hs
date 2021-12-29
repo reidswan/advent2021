@@ -4,6 +4,7 @@ import Data.Array
 import qualified Data.Array as Arr ((!))
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
+import qualified Data.Set as Set
 import Debug.Trace (traceShowId)
 import Text.Parsec (ParseError, Parsec, endBy, eof, many1, newline, oneOf, parse)
 import Util (enumerate, readBinary', valsSortedByKey)
@@ -14,10 +15,11 @@ type Parser a = Parsec String () a
 
 data Image = Image
   { alg :: Array Int Bool,
-    img :: Map.Map Coord Bool,
+    img :: Set.Set Coord,
     iter :: Integer
   }
 
+showBit :: Bool -> Char
 showBit True = '#'
 showBit False = '.'
 
@@ -52,12 +54,18 @@ imageSample = do
   let lines' = [((i, j), b) | (i, line) <- enumerate lines, (j, b) <- enumerate line]
   return $ Map.fromList lines'
 
+imageSample' :: Parser (Set.Set Coord)
+imageSample' = do
+  lines <- many1 bitLine
+  let lines' = [(i, j) | (i, line) <- enumerate lines, (j, b) <- enumerate line, b]
+  return $ Set.fromList lines'
+
 image :: Parser Image
 image = do
   algoList <- bitLine
   let alg = listArray (0, 511) algoList
   newline
-  img <- imageSample
+  img <- imageSample'
   eof
   return $ Image {alg, img, iter = 0}
 
@@ -65,14 +73,14 @@ parseInput :: String -> Either ParseError Image
 parseInput = parse image ""
 
 bitAt :: Image -> Coord -> Bool
-bitAt i c = fromMaybe (emptyBit i) $ Map.lookup c $ img i
+bitAt i c
+  | Set.member c (img i) = not (emptyBit i)
+  | otherwise = emptyBit i
 
 relevantArea :: Image -> (Coord, Coord)
 relevantArea i@Image {img} =
-  let empty = emptyBit i
-      keys = Map.keys $ Map.filter (/= empty) img
-      xs = map fst keys
-      ys = map snd keys
+  let xs = Set.map fst img
+      ys = Set.map snd img
    in ((minimum xs - 2, minimum ys - 2), (maximum xs + 2, maximum ys + 2))
 
 adjacent :: Coord -> [Coord]
@@ -91,13 +99,19 @@ enhancedValue i c =
 mapArea :: (Coord, Coord) -> (Coord -> a) -> [(Coord, a)]
 mapArea ((xMin, yMin), (xMax, yMax)) f = [((x, y), f (x, y)) | x <- [xMin .. xMax], y <- [yMin .. yMax]]
 
+filterArea :: (Coord, Coord) -> (Coord -> Bool) -> [Coord]
+filterArea ((xMin, yMin), (xMax, yMax)) pred = [(x, y) | x <- [xMin .. xMax], y <- [yMin .. yMax], pred (x, y)]
+
 enhanceImage :: Image -> Image
 enhanceImage i =
   let area = relevantArea i
-      assocs = mapArea area (enhancedValue i)
-      img' = Map.fromList assocs
+      empty = emptyBit i {iter = iter i + 1}
+      nonEmptyBitLocs = filterArea area (\c -> enhancedValue i c /= empty)
+      img' = Set.fromList nonEmptyBitLocs
       iter' = iter i + 1
    in i {img = img', iter = iter'}
+
+-- enhanceImage' ::
 
 enhanceImageN :: Int -> Image -> Image
 enhanceImageN n i
@@ -105,7 +119,7 @@ enhanceImageN n i
   | otherwise = i
 
 litPixels :: Image -> Int
-litPixels = length . Map.filter id . img
+litPixels = length . img
 
 part1 :: Image -> Int
 part1 i =
