@@ -48,14 +48,8 @@ bitLine = do
   newline
   return $ map (== '#') pixelArr
 
-imageSample :: Parser (Map.Map Coord Bool)
+imageSample :: Parser (Set.Set Coord)
 imageSample = do
-  lines <- many1 bitLine
-  let lines' = [((i, j), b) | (i, line) <- enumerate lines, (j, b) <- enumerate line]
-  return $ Map.fromList lines'
-
-imageSample' :: Parser (Set.Set Coord)
-imageSample' = do
   lines <- many1 bitLine
   let lines' = [(i, j) | (i, line) <- enumerate lines, (j, b) <- enumerate line, b]
   return $ Set.fromList lines'
@@ -65,7 +59,7 @@ image = do
   algoList <- bitLine
   let alg = listArray (0, 511) algoList
   newline
-  img <- imageSample'
+  img <- imageSample
   eof
   return $ Image {alg, img, iter = 0}
 
@@ -110,8 +104,6 @@ enhanceImage i =
       img' = Set.fromList nonEmptyBitLocs
       iter' = iter i + 1
    in i {img = img', iter = iter'}
-
--- enhanceImage' ::
 
 enhanceImageN :: Int -> Image -> Image
 enhanceImageN n i
