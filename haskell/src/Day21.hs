@@ -104,22 +104,6 @@ universeCount 8 = 3
 universeCount 9 = 1
 universeCount _ = undefined
 
-minRiskScore :: Array.Array (Int, Int) Int -> Int
-minRiskScore grid = go (0, 0)
-  where
-    (_, (ht, wid)) = Array.bounds grid
-    go (i, j)
-      | (i, j) == (ht, wid) = grid ! (i, j)
-      | i == ht = grid ! (i, j) + dynamicStore ! (i, j + 1)
-      | j == wid = grid ! (i, j) + dynamicStore ! (i + 1, j)
-      | otherwise =
-        let curr = grid ! (i, j)
-            right = dynamicStore ! (i, j + 1)
-            down = dynamicStore ! (i + 1, j)
-            next = min right down
-         in curr + next
-    dynamicStore = Array.listArray ((0, 0), (ht, wid)) [go (i, j) | i <- [0 .. ht], j <- [0 .. wid]]
-
 cumulativeRolls :: [Integer]
 cumulativeRolls = [3 .. 9]
 
