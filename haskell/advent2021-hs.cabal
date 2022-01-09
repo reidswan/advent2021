@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 09df0892e83a28a737e4c50e19090c7c080ac02e96f82481c04f0b42bc2895bc
+-- hash: d8fcddeabadd1e8aed6a9213e483f81308ea552002c03c319a588dd543b3c10b
 
 name:           advent2021-hs
 version:        0.1.0.0
@@ -39,6 +39,7 @@ library
       Day2
       Day20
       Day21
+      Day22
       Day3
       Days
       Util
@@ -52,6 +53,7 @@ library
     , base >=4.7 && <5
     , containers
     , hashtables
+    , mtl
     , parsec
     , timeit
   default-language: Haskell2010
@@ -70,6 +72,7 @@ executable advent2021-hs-exe
     , base >=4.7 && <5
     , containers
     , hashtables
+    , mtl
     , parsec
     , timeit
   default-language: Haskell2010

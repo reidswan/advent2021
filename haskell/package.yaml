@@ -26,6 +26,7 @@ dependencies:
 - parsec
 - array
 - hashtables
+- mtl
 
 library:
   source-dirs: src
